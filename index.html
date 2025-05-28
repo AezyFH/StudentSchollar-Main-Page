@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StudentSchollar Website</title>
+  <style>
+    :root {
+      --color-bg-dark: #000000;
+      --color-text-dark: #00a1ff;
+      --color-primary-dark: #00a1ff;
+      --color-bg-light: #ffffff;
+      --color-text-light: #000000;
+      --color-primary-light: #555555;
+    }
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--color-bg-dark);
+      color: var(--color-text-dark);
+      overflow-y: scroll;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      position: relative;
+    }
+    body::-webkit-scrollbar {
+      width: 0; height: 0;
+    }
+    body.light-mode {
+      background-color: var(--color-bg-light);
+      color: var(--color-text-light);
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    body.light-mode::-webkit-scrollbar {
+      width: 0; height: 0;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      top: -150px; left: -150px;
+      width: 600px; height: 600px;
+      background:
+        radial-gradient(ellipse at center, rgba(0,102,255,0.6) 0%, transparent 60%),
+        radial-gradient(circle at 250px 250px, rgba(10,150,255,0.5) 15%, transparent 70%),
+        radial-gradient(circle at 400px 150px, rgba(0,140,255,0.4) 25%, transparent 80%);
+      pointer-events: none;
+      z-index: -1;
+      filter: blur(60px);
+      animation: blueSplashMove 15s ease-in-out infinite alternate;
+    }
+    body.light-mode::before {
+      background:
+        radial-gradient(ellipse at center, rgba(120,120,120,0.2) 0%, transparent 80%),
+        radial-gradient(circle at 250px 250px, rgba(180,180,180,0.1) 15%, transparent 85%),
+        radial-gradient(circle at 400px 150px, rgba(200,200,200,0.05) 25%, transparent 90%);
+    }
+    @keyframes blueSplashMove {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(30px, 20px) scale(1.05); }
+    }
+    header {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 60px;
+      background: rgba(15,15,15,0.9);
+      backdrop-filter: saturate(180%) blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 20px; box-sizing: border-box; z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,102,255,0.4);
+      transition: background-color 0.3s ease;
+    }
+    body.light-mode header {
+      background: #f4f4f4;
+      box-shadow: 0 2px 7px rgba(0,0,0,0.1);
+    }
+    .hamburger-container {
+      position: fixed; top: 12px; left: 20px; z-index: 1100;
+    }
+    .hamburger {
+      width: 40px; height: 30px; cursor: pointer;
+      display: flex; flex-direction: column; justify-content: space-around;
+    }
+    .bar {
+      height: 4px; width: 100%; background-color: var(--color-primary-dark);
+      border-radius: 3px; transition: 0.4s;
+      box-shadow: 0 0 8px var(--color-primary-dark);
+    }
+    body.light-mode .bar {
+      background-color: var(--color-primary-light); box-shadow: none;
+    }
+    .hamburger.active .bar:nth-child(1) {
+      transform: translateY(10px) rotate(45deg);
+    }
+    .hamburger.active .bar:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.active .bar:nth-child(3) {
+      transform: translateY(-10px) rotate(-45deg);
+    }
+    .header-title {
+      color: var(--color-primary-dark);
+      font-weight: 700;
+      font-size: 1.6rem;
+      user-select: none;
+      text-shadow: 0 0 10px var(--color-primary-dark);
+      text-align: center;
+      cursor: pointer;
+      flex-grow: 1;
+      transition: color 0.3s ease, text-shadow 0.3s ease;
+    }
+    body.light-mode .header-title {
+      color: var(--color-primary-light);
+      text-shadow: none;
+    }
+    .dropdown-menu {
+      position: fixed; top: 60px; left: 0;
+      background: rgba(10,20,40,0.95);
+      box-shadow: 0 4px 12px rgba(0,162,255,0.8);
+      border-radius: 0 6px 6px 0;
+      min-width: 180px; max-width: 220px;
+      overflow: hidden; opacity: 0; max-height: 0;
+      transition: opacity 0.3s ease, max-height 0.3s ease;
+      pointer-events: none; z-index: 1050;
+    }
+    body.light-mode .dropdown-menu {
+      background: #f7f7f7; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .dropdown-menu.show {
+      opacity: 1; max-height: 100px; pointer-events: auto;
+    }
+    .dropdown-menu button {
+      width: 100%; background: transparent; border: none;
+      color: var(--color-primary-dark);
+      padding: 12px 16px; font-size: 1rem; text-align: left;
+      cursor: pointer; transition: background-color 0.2s ease;
+      user-select: none;
+    }
+    body.light-mode .dropdown-menu button {
+      color: var(--color-primary-light);
+    }
+    .dropdown-menu button:hover,
+    .dropdown-menu button:focus {
+      background-color: rgba(0,162,255,0.2);
+      outline: none;
+    }
+    body.light-mode .dropdown-menu button:hover,
+    body.light-mode .dropdown-menu button:focus {
+      background-color: rgba(0,0,0,0.1);
+    }
+    main {
+      padding: 100px 20px 20px 20px;
+      max-width: 900px; margin: 0 auto;
+      color: var(--color-text-dark);
+      text-align: center; min-height: calc(100vh - 110px);
+      transition: color 0.3s ease;
+    }
+    body.light-mode main {
+      color: var(--color-text-light);
+    }
+    main h2 {
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    #featureList {
+      display: flex; justify-content: space-between;
+      max-width: 700px; margin: 0 auto 30px;
+      gap: 10px; padding-left: 10px; padding-right: 10px;
+      box-sizing: border-box;
+    }
+    #featureList li {
+      list-style: none;
+      background: rgba(0,162,255,0.15);
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 2rem;
+      padding: 60px 20px;
+      cursor: pointer;
+      user-select: none;
+      flex: 1 1 45%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: background-color 0.3s ease;
+      min-width: 130px;
+      box-sizing: border-box;
+    }
+    body.light-mode #featureList li {
+      background: #eee;
+      color: var(--color-text-light);
+    }
+    #featureList li:hover,
+    #featureList li:focus {
+      background-color: rgba(0,162,255,0.35);
+      outline: none;
+    }
+    body.light-mode #featureList li:hover,
+    body.light-mode #featureList li:focus {
+      background-color: #ddd;
+    }
+    .info-text {
+      font-size: 1rem;
+      color: var(--color-primary-dark);
+      font-weight: 600;
+      line-height: 1.5;
+      max-width: 600px;
+      user-select: none;
+      text-shadow: 0 0 8px var(--color-primary-dark);
+      margin: 0 auto 20px;
+      text-align: center;
+      transition: color 0.3s ease, text-shadow 0.3s ease;
+    }
+    body.light-mode .info-text {
+      color: var(--color-primary-light);
+      text-shadow: none;
+    }
+    ul.subList {
+      list-style: none;
+      padding: 0;
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: left;
+    }
+    ul.subList li {
+      background: rgba(0,162,255,0.15);
+      margin: 8px 0;
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1.1rem;
+      user-select: none;
+    }
+    body.light-mode ul.subList li {
+      background: #eee;
+      color: var(--color-text-light);
+    }
+    ul.subList li:hover, ul.subList li:focus {
+      background-color: rgba(0,162,255,0.35);
+      outline: none;
+    }
+    body.light-mode ul.subList li:hover, body.light-mode ul.subList li:focus {
+      background-color: #ddd;
+    }
+    button.back-btn {
+      margin-top: 25px;
+      padding: 10px 24px;
+      cursor: pointer;
+      background: var(--color-primary-dark);
+      border: none;
+      color: white;
+      font-weight: 600;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    body.light-mode button.back-btn {
+      background: var(--color-primary-light);
+      color: var(--color-text-light);
+    }
+    button.back-btn:hover,
+    button.back-btn:focus {
+      background: var(--color-primary-light);
+      outline: none;
+      color: var(--color-text-light);
+    }
+    #copyright {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 600;
+      user-select: none;
+      pointer-events: none;
+    }
+    body.light-mode #copyright {
+      color: rgba(0, 0, 0, 0.5);
+    }
+    @media (max-width: 600px) {
+      #featureList {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        max-width: 320px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 20px;
+        padding-right: 20px;
+        box-sizing: border-box;
+      }
+      #featureList li {
+        width: 100%;
+        padding: 40px 10px;
+        font-size: 1.6rem;
+        flex: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hamburger-container">
+      <div class="hamburger" id="hamburger" aria-label="Toggle menu" role="button" tabindex="0" aria-expanded="false"
+        aria-controls="dropdown-menu">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+      <nav class="dropdown-menu" id="dropdown-menu" role="menu" aria-hidden="true">
+        <button id="customerServiceBtn" role="menuitem" tabindex="-1" type="button">Customer Service</button>
+      </nav>
+    </div>
+    <div class="header-title" id="headerTitle" tabindex="0" role="button" aria-label="Home, go to main page">
+      StudentSchollar
+    </div>
+    <button id="modeToggle" aria-pressed="false" aria-label="Toggle dark and light mode">Light Mode</button>
+  </header>
+  <main aria-live="polite" aria-atomic="true" id="contentArea" tabindex="0">
+    <h2>Main Features</h2>
+    <ul id="featureList">
+      <li tabindex="0" role="button" data-feature="School">School</li>
+      <li tabindex="0" role="button" data-feature="Majoring">Majoring</li>
+    </ul>
+    <div class="info-text">
+     StudentSchollar is an app to help schools and students grow together.<br />
+      Let’s build a smarter path to education. Mulai dari memahami siapa kita sebenarnya.
+    </div>
+  </main>
+  <div id="copyright">© StudentSchollar</div>
+  <script>
+    const body = document.body;
+    const modeToggle = document.getElementById('modeToggle');
+    const hamburger = document.getElementById('hamburger');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    const customerServiceBtn = document.getElementById('customerServiceBtn');
+    const contentArea = document.getElementById('contentArea');
+    const headerTitle = document.getElementById('headerTitle');
+
+    modeToggle.addEventListener('click', () => {
+      const isLight = body.classList.toggle('light-mode');
+      modeToggle.textContent = isLight ? 'Dark Mode' : 'Light Mode';
+      modeToggle.setAttribute('aria-pressed', isLight);
+    });
+
+    function closeMenu() {
+      hamburger.classList.remove('active');
+      dropdownMenu.classList.remove('show');
+      hamburger.setAttribute('aria-expanded', 'false');
+      dropdownMenu.setAttribute('aria-hidden', 'true');
+    }
+
+    function showMainFeatures() {
+      contentArea.innerHTML = `
+        <h2>Main Features</h2>
+        <ul id="featureList">
+          <li tabindex="0" role="button" data-feature="School">School</li>
+          <li tabindex="0" role="button" data-feature="Majoring">Majoring</li>
+        </ul>
+        <div class="info-text">
+        StudentSchollar is an app to help schools and students grow together.<br />
+        Let’s build a smarter path to education. Mulai dari memahami siapa kita sebenarnya.
+        </div>
+      `;
+      const list = document.getElementById('featureList');
+      list.querySelectorAll('li').forEach(li => {
+        li.addEventListener('click', () => handleFeatureClick(li.getAttribute('data-feature')));
+        li.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleFeatureClick(li.getAttribute('data-feature'));
+          }
+        });
+      });
+      contentArea.focus();
+    }
+
+    function handleFeatureClick(feature) {
+      if (feature === 'School') {
+        showSchools();
+      } else if (feature === 'Majoring') {
+        showMajoring();
+      }
+    }
+
+    function showSchools() {
+      contentArea.innerHTML = `
+        <h2>Registered Schools</h2>
+        <ul class="subList" id="schoolsList" tabindex="0" role="listbox">
+          <li tabindex="0" role="option" id="sman2" style="cursor:pointer;">SMAN 2 Unggulan Talang Ubi</li>
+        </ul>
+        <button class="back-btn" id="backBtn">Back to Main Features</button>
+      `;
+      contentArea.focus();
+
+      const classPageUrl = "https://studentschollar.web.app";
+
+      document.getElementById('sman2').addEventListener('click', () => {
+        window.location.href = classPageUrl;
+      });
+      document.getElementById('sman2').addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          document.getElementById('sman2').click();
+        }
+      });
+
+      const backBtn = document.getElementById('backBtn');
+      backBtn.addEventListener('click', showMainFeatures);
+      backBtn.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          showMainFeatures();
+        }
+      });
+    }
+
+    function showMajoring() {
+      contentArea.innerHTML = `
+        <h2>Majoring Feature</h2>
+        <ul class="subList" id="majoringList" tabindex="0" role="listbox">
+          <li tabindex="0" role="option" id="mbtiTest">MBTI Test Interest & Talent</li>
+          <li tabindex="0" role="option" id="collegePlanning">College Planning</li>
+        </ul>
+        <button class="back-btn" id="backBtn">Back to Main Features</button>
+      `;
+      contentArea.focus();
+
+      document.getElementById('mbtiTest').addEventListener('click', () => {
+        window.open("https://aezyfh.github.io/Personalize-MBTI/", "_blank");
+      });
+      document.getElementById('mbtiTest').addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          document.getElementById('mbtiTest').click();
+        }
+      });
+
+      // MODIFIED SECTION FOR COLLEGE PLANNING
+      document.getElementById('collegePlanning').addEventListener('click', () => {
+        window.open("https://aezyfh.github.io/Colllege-Planning/", "_blank");
+      });
+      document.getElementById('collegePlanning').addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          document.getElementById('collegePlanning').click();
+        }
+      });
+
+      const backBtn = document.getElementById('backBtn');
+      backBtn.addEventListener('click', showMainFeatures);
+      backBtn.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          showMainFeatures();
+        }
+      });
+    }
+
+    hamburger.addEventListener('click', () => {
+      const isActive = hamburger.classList.toggle('active');
+      if (isActive) {
+        dropdownMenu.classList.add('show');
+        hamburger.setAttribute('aria-expanded', 'true');
+        dropdownMenu.setAttribute('aria-hidden', 'false');
+      } else {
+        hamburger.classList.remove('active');
+        dropdownMenu.classList.remove('show');
+        hamburger.setAttribute('aria-expanded', 'false');
+        dropdownMenu.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    hamburger.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        hamburger.click();
+      }
+      if (e.key === 'Escape') {
+        hamburger.classList.remove('active');
+        dropdownMenu.classList.remove('show');
+        hamburger.setAttribute('aria-expanded', 'false');
+        dropdownMenu.setAttribute('aria-hidden', 'true');
+        hamburger.focus();
+      }
+    });
+
+    document.addEventListener('click', e => {
+      if (!dropdownMenu.contains(e.target) && !hamburger.contains(e.target)) {
+        hamburger.classList.remove('active');
+        dropdownMenu.classList.remove('show');
+        hamburger.setAttribute('aria-expanded', 'false');
+        dropdownMenu.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    dropdownMenu.addEventListener('keydown', e => {
+      const buttons = Array.from(dropdownMenu.querySelectorAll('button'));
+      let idx = buttons.indexOf(document.activeElement);
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        idx = (idx + 1) % buttons.length;
+        buttons[idx].focus();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        idx = (idx - 1 + buttons.length) % buttons.length;
+        buttons[idx].focus();
+      } else if (e.key === 'Escape') {
+        hamburger.classList.remove('active');
+        dropdownMenu.classList.remove('show');
+        hamburger.setAttribute('aria-expanded', 'false');
+        dropdownMenu.setAttribute('aria-hidden', 'true');
+        hamburger.focus();
+      }
+    });
+
+    customerServiceBtn.addEventListener('click', () => {
+      closeMenu();
+      contentArea.innerHTML = `
+        <h2>Customer Service</h2>
+        <p>You can contact customer service at:</p>
+        <p style="font-size:1.4rem; font-weight:700; margin-top:10px;">studentservicess20@gmail.com</p>
+        <button class="back-btn" id="backBtn">Back to Main Features</button>
+      `;
+      contentArea.focus();
+      const backBtn = document.getElementById('backBtn');
+      backBtn.addEventListener('click', showMainFeatures);
+      backBtn.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          showMainFeatures();
+        }
+      });
+    });
+
+    customerServiceBtn.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        customerServiceBtn.click();
+      }
+    });
+
+    headerTitle.addEventListener('click', () => {
+      showMainFeatures();
+      closeMenu();
+    });
+
+    headerTitle.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        headerTitle.click();
+      }
+    });
+
+    // Initialize main features on page load
+    showMainFeatures();
+</script>
+</body>
+</html>
